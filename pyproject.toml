@@ -6,12 +6,13 @@ authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.14"
 tensorflow = "^2.18.0"
 statsmodels = "^0.14.4"
 scikit-learn = "^1.5.2"
 jupyter = "^1.1.1"
 seaborn = "^0.13.2"
+sktime = "^0.34.0"
 
 
 [build-system]
