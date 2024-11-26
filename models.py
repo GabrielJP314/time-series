@@ -176,12 +176,14 @@ class ARIMA:
         self.p = p
         self.d = d
         self.q = q
+        self.fitted_values = None
 
     def fit(self, y_train):
         """
             Fit the model
         """
         self.model = ARIMA_Model(y_train, order=(self.p, self.d, self.q)).fit()
+        self.fitted_values = self.model.fittedvalues
 
     def predict(self, n_preds):
         """
@@ -201,12 +203,14 @@ class SARIMA:
         self.D = D
         self.Q = Q
         self.s = s
+        self.fitted_values = None
 
     def fit(self, y_train):
         """
             Fit the model
         """
         self.model = SARIMAX(y_train, order=(self.p, self.d, self.q), seasonal_order=(self.P, self.D, self.Q, self.s)).fit()
+        self.fitted_values = self.model.fittedvalues
 
     def predict(self, n_preds):
         """
