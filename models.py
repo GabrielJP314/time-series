@@ -295,7 +295,7 @@ class LSTM:
         """
         preds = []
         for i in range(n_preds):
-            pred = self.model.predict(X_test)
+            pred = self.model.predict(np.array([X_test]), verbose=0)
             preds.append(pred)
-            X_test = np.concatenate([X_test[:, 1:], pred], axis=1)
-        return np.array(preds).flatten()
+            X_test = np.concatenate([X_test[1:], pred])
+        return np.array(preds).flatten().reshape(-1, 1)
