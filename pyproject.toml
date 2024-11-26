@@ -13,7 +13,9 @@ scikit-learn = "^1.5.2"
 jupyter = "^1.1.1"
 seaborn = "^0.13.2"
 sktime = "^0.34.0"
-
+pmdarima = "^2.0.4"
+numpy = "1.26.4"
+tqdm = "^4.67.1"
 
 [build-system]
 requires = ["poetry-core"]
