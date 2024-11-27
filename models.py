@@ -7,7 +7,7 @@ from statsmodels.tsa.arima.model import ARIMA as ARIMA_Model
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from sklearn.linear_model import LinearRegression as LR
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D as KerasConv1D, LSTM as KerasLSTM, Dense
+from tensorflow.keras.layers import Conv1D as KerasConv1D, LSTM as KerasLSTM, Dense, Input
 
 # Baseline models
 class NaiveModel:
@@ -176,12 +176,16 @@ class ARIMA:
         self.p = p
         self.d = d
         self.q = q
+        self.fitted_values = None
+        self.model = None
 
     def fit(self, y_train):
         """
             Fit the model
         """
         self.model = ARIMA_Model(y_train, order=(self.p, self.d, self.q)).fit()
+        self.fitted_values = self.model.fittedvalues
+        return self.model
 
     def predict(self, n_preds):
         """
@@ -201,12 +205,16 @@ class SARIMA:
         self.D = D
         self.Q = Q
         self.s = s
+        self.fitted_values = None
+        self.model = None
 
     def fit(self, y_train):
         """
             Fit the model
         """
         self.model = SARIMAX(y_train, order=(self.p, self.d, self.q), seasonal_order=(self.P, self.D, self.Q, self.s)).fit()
+        self.fitted_values = self.model.fittedvalues
+        return self.model
 
     def predict(self, n_preds):
         """
@@ -264,18 +272,30 @@ class LSTM:
     """
     def __init__(self, input_shape, units):
         self.model = Sequential()
-        self.model.add(KerasLSTM(units=units, input_shape=input_shape))
+        self.model.add(Input(shape=input_shape))
+        self.model.add(KerasLSTM(units=units))
         self.model.add(Dense(1))
         self.model.compile(optimizer='adam', loss='mse')
 
-    def fit(self, X_train, y_train, epochs=10, batch_size=32):
+    def fit(self, X_train, y_train, epochs=10, batch_size=32, verbose=1):
         """
             Fit the model
         """
-        self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
+        self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, verbose=verbose)
 
-    def predict(self, X_test):
+    def predict(self, X_test, verbose=1):
         """
-            Predict n_preds
+            Predict one point to each sample in X_test
         """
-        return self.model.predict(X_test)
+        return self.model.predict(X_test, verbose=verbose)
+    
+    def predict_n_preds(self, X_test, n_preds):
+        """
+            Given a sample X_test, predict n_preds
+        """
+        preds = []
+        for i in range(n_preds):
+            pred = self.model.predict(np.array([X_test]), verbose=0)
+            preds.append(pred)
+            X_test = np.concatenate([X_test[1:], pred])
+        return np.array(preds).flatten().reshape(-1, 1)
